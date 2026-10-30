@@ -37,6 +37,10 @@
     function finalize() {
       dragging = false;
       if (!crossed) {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          apply(startLeft);
+          return;
+        }
         el.style.transition = "transform 240ms ease";
         apply(startLeft);
         setTimeout(() => {
