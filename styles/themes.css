@@ -1,0 +1,25 @@
+:root[data-theme="asian"] {
+  --bg: #171310;
+  --surface: #211b16;
+  --ink: #f3ece2;
+  --muted: #b8a894;
+  --accent: #c8874a;
+  --accent-ink: #171310;
+  --field-1: #f3ece2;
+}
+
+:root[data-theme="sea"] {
+  --bg: #f7f9f8;
+  --surface: #ebf0ee;
+  --ink: #06525c;
+  --muted: #2f737d;
+  --accent: #06525c;
+  --accent-ink: #f7f9f8;
+  --field-1: #06525c;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  body {
+    transition: background-color 700ms;
+  }
+}
