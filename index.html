@@ -26,7 +26,13 @@
 
     <main>
       <section id="hero" class="hero" aria-labelledby="site-title">
-        <div id="prawn" class="prawn"></div>
+        <div
+          id="prawn"
+          class="prawn"
+          tabindex="0"
+          role="button"
+          aria-label="Перетащите креветку вправо для перехода в морскую тему"
+        ></div>
         <p id="theme-hint" class="theme-hint">потяни вправо</p>
       </section>
 
@@ -64,5 +70,6 @@
     </footer>
 
     <script src="js/theme.js" defer></script>
+    <script src="js/drag.js" defer></script>
   </body>
 </html>
