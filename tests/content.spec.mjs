@@ -23,10 +23,11 @@ test("каркас содержит секции, подсказку и меню
     }
     assert.equal(await page.locator("#theme-hint").innerText(), "потяни вправо");
     assert.deepEqual(await page.locator("#menu h3").allInnerTexts(), [
-      "Большие королевские креветки, 10–25 см",
+      "Большие королевские креветки",
       "Маленькие креветки с рисом",
       "Суши",
     ]);
+    assert.match(await page.locator("#menu .menu-note").first().innerText(), /10–25 см/);
     const contactLink = page.locator('#contact a[href^="mailto:"]');
     assert.equal(await contactLink.count(), 1);
     assert.equal(await contactLink.innerText(), "написать нам");

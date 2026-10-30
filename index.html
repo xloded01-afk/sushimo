@@ -8,6 +8,7 @@
       name="description"
       content="Sushimo — ресторан морепродуктов в Москве. Королевские креветки, суши, часы работы и контакт."
     />
+    <script>document.documentElement.className += " js";</script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -34,6 +35,10 @@
 
     <main>
       <section id="hero" class="hero" aria-labelledby="site-title">
+        <div class="hero-lead">
+          <p class="hero-tagline">морепродукты · Москва</p>
+          <p id="theme-hint" class="theme-hint">потяни вправо</p>
+        </div>
         <div
           id="prawn"
           class="prawn"
@@ -43,43 +48,52 @@
         >
           <img src="assets/prawn.svg" alt="Королевская креветка 10–25 см" draggable="false" />
         </div>
-        <p id="theme-hint" class="theme-hint">потяни вправо</p>
       </section>
 
       <section id="menu" class="menu" aria-labelledby="menu-title">
-        <h2 id="menu-title">Меню</h2>
-        <ul class="menu-list">
+        <h2 id="menu-title" data-reveal>Меню</h2>
+        <ul class="menu-list" data-reveal>
           <li class="menu-item">
-            <h3 class="menu-name">Большие королевские креветки, 10–25 см</h3>
+            <div class="menu-body">
+              <h3 class="menu-name">Большие королевские креветки</h3>
+              <p class="menu-note">из Вьетнама · 10–25 см · 20 штук в порции</p>
+            </div>
             <p class="menu-price">500 ₽ за порцию</p>
           </li>
           <li class="menu-item">
-            <h3 class="menu-name">Маленькие креветки с рисом</h3>
+            <div class="menu-body">
+              <h3 class="menu-name">Маленькие креветки с рисом</h3>
+            </div>
             <p class="menu-price">300 ₽ за порцию</p>
           </li>
           <li class="menu-item">
-            <h3 class="menu-name">Суши</h3>
+            <div class="menu-body">
+              <h3 class="menu-name">Суши</h3>
+            </div>
             <p class="menu-price">400 ₽ за 7 штук</p>
           </li>
         </ul>
       </section>
 
       <section id="hours" class="hours" aria-labelledby="hours-title">
-        <h2 id="hours-title">Часы</h2>
-        <p class="hours-value">10:00–20:00</p>
+        <h2 id="hours-title" data-reveal>Часы</h2>
+        <p class="hours-value" data-reveal>10:00–20:00</p>
       </section>
     </main>
 
     <footer id="contact" class="contact" aria-labelledby="contact-title">
-      <h2 id="contact-title">Контакты</h2>
-      <p class="contact-city">Москва</p>
-      <p class="contact-email">smatvienko04062012@gmail.com</p>
-      <p class="contact-action">
-        <a class="contact-link" href="mailto:smatvienko04062012@gmail.com">написать нам</a>
-      </p>
+      <div data-reveal>
+        <h2 id="contact-title">Контакты</h2>
+        <p class="contact-city">Москва</p>
+        <p class="contact-email">smatvienko04062012@gmail.com</p>
+        <p class="contact-action">
+          <a class="contact-link" href="mailto:smatvienko04062012@gmail.com">написать нам</a>
+        </p>
+      </div>
     </footer>
 
     <script src="js/theme.js" defer></script>
     <script src="js/drag.js" defer></script>
+    <script src="js/reveal.js" defer></script>
   </body>
 </html>

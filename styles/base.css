@@ -92,14 +92,32 @@ ul {
   grid-template-columns: repeat(12, 1fr);
   gap: 1rem;
   align-items: end;
-  min-height: min(78svh, 52rem);
   padding: 0 var(--page-margin) var(--section-space);
 }
 
+.hero-lead {
+  grid-column: 1 / 5;
+  grid-row: 1;
+  align-self: end;
+}
+
+.hero-tagline {
+  margin-bottom: 0.75rem;
+  color: var(--ink);
+  font-size: var(--step-body);
+}
+
+.theme-hint {
+  color: var(--muted);
+  font-size: var(--step-small);
+}
+
 .prawn {
-  grid-column: 7 / -1;
+  grid-column: 6 / -1;
+  grid-row: 1;
   width: 100%;
   aspect-ratio: 4 / 5;
+  max-height: min(72svh, 42rem);
   padding: clamp(1.5rem, 3.5vw, 3rem);
   background: var(--surface);
   touch-action: none;
@@ -116,14 +134,6 @@ ul {
   object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
-}
-
-.theme-hint {
-  grid-column: 1 / 6;
-  grid-row: 1;
-  align-self: end;
-  color: var(--muted);
-  font-size: var(--step-small);
 }
 
 .menu,
@@ -156,6 +166,12 @@ ul {
   font-size: var(--step-lead);
 }
 
+.menu-note {
+  margin-top: 0.375rem;
+  color: var(--muted);
+  font-size: var(--step-small);
+}
+
 .menu-price {
   color: var(--muted);
   font-size: var(--step-body);
@@ -165,10 +181,14 @@ ul {
 
 .hours-value {
   font-family: var(--font-display);
-  font-size: var(--step-head);
+  font-size: clamp(3.25rem, 9vw, 8.5rem);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.035em;
   line-height: 0.92;
+}
+
+.hours {
+  background: var(--surface);
 }
 
 .contact {
@@ -191,4 +211,52 @@ ul {
   font-size: var(--step-body);
   letter-spacing: 0.02em;
   text-underline-offset: 0.15em;
+}
+
+@media (max-width: 480px) {
+  :root {
+    --section-space: 3rem;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translateY(4px);
+  }
+
+  to {
+    transform: translateY(-4px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .prawn {
+    animation: rise 700ms cubic-bezier(0.2, 0.7, 0.3, 1) backwards;
+  }
+
+  .hero-lead {
+    animation: rise 700ms 120ms cubic-bezier(0.2, 0.7, 0.3, 1) backwards;
+  }
+
+  .prawn img {
+    animation: drift 7s ease-in-out 900ms infinite alternate;
+  }
+
+  .js [data-reveal] {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 600ms ease, transform 600ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+
+  .js [data-reveal].is-in {
+    opacity: 1;
+    transform: none;
+  }
 }
