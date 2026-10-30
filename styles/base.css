@@ -1,0 +1,174 @@
+:root {
+  --font-display: "Libre Franklin", "Helvetica Neue", Arial, sans-serif;
+  --font-text: "Source Serif 4", Georgia, "Times New Roman", serif;
+
+  --step-small: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
+  --step-body: clamp(1.0625rem, 1rem + 0.25vw, 1.1875rem);
+  --step-lead: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem);
+  --step-head: clamp(2rem, 1.3rem + 3.2vw, 4rem);
+
+  --page-margin: clamp(1.25rem, 8vw, 8rem);
+  --section-space: clamp(4rem, 10vw, 8rem);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+body {
+  min-height: 100svh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-text);
+  font-size: var(--step-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: inherit;
+}
+
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+.site-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: clamp(1.25rem, 2.5vw, 2rem) var(--page-margin);
+}
+
+.wordmark {
+  font-size: clamp(1.5rem, 2.2vw, 2rem);
+}
+
+.header-hours {
+  color: var(--muted);
+  font-size: var(--step-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
+  align-items: end;
+  min-height: min(78svh, 52rem);
+  padding: 0 var(--page-margin) var(--section-space);
+}
+
+.prawn {
+  grid-column: 7 / -1;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  background: var(--surface);
+}
+
+.theme-hint {
+  grid-column: 1 / 6;
+  grid-row: 1;
+  align-self: end;
+  color: var(--muted);
+  font-size: var(--step-small);
+}
+
+.menu,
+.hours,
+.contact {
+  padding: var(--section-space) var(--page-margin);
+}
+
+.menu h2,
+.hours h2,
+.contact h2 {
+  margin-bottom: clamp(2rem, 4vw, 3.5rem);
+  font-size: var(--step-head);
+}
+
+.menu-list {
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 2.25rem);
+  max-width: 48rem;
+}
+
+.menu-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  column-gap: 2rem;
+  align-items: baseline;
+}
+
+.menu-name {
+  font-size: var(--step-lead);
+}
+
+.menu-price {
+  color: var(--muted);
+  font-size: var(--step-body);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.hours-value {
+  font-family: var(--font-display);
+  font-size: var(--step-head);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.035em;
+  line-height: 0.92;
+}
+
+.contact {
+  display: grid;
+  gap: 0.5rem;
+  align-content: start;
+}
+
+.contact h2 {
+  margin-bottom: 1rem;
+}
+
+.contact-email {
+  font-size: var(--step-lead);
+  overflow-wrap: anywhere;
+}
+
+.contact-link {
+  font-family: var(--font-display);
+  font-size: var(--step-body);
+  letter-spacing: 0.02em;
+  text-underline-offset: 0.15em;
+}
