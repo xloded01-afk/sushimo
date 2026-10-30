@@ -1,25 +1,41 @@
-:root[data-theme="asian"] {
-  --bg: #171310;
-  --surface: #211b16;
-  --ink: #f3ece2;
-  --muted: #b8a894;
-  --accent: #c8874a;
-  --accent-ink: #171310;
-  --field-1: #f3ece2;
+@property --sea {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
 }
 
-:root[data-theme="sea"] {
-  --bg: #f7f9f8;
-  --surface: #ebf0ee;
-  --ink: #06525c;
-  --muted: #2f737d;
-  --accent: #06525c;
-  --accent-ink: #f7f9f8;
-  --field-1: #06525c;
+:root {
+  --asian-bg: #171310;
+  --asian-surface: #211b16;
+  --asian-ink: #f3ece2;
+  --asian-muted: #b8a894;
+  --asian-accent: #c8874a;
+  --asian-accent-ink: #171310;
+  --asian-field-1: #f3ece2;
+
+  --sea-bg: #f7f9f8;
+  --sea-surface: #ebf0ee;
+  --sea-ink: #06525c;
+  --sea-muted: #2f737d;
+  --sea-accent: #06525c;
+  --sea-accent-ink: #f7f9f8;
+  --sea-field-1: #06525c;
+
+  --bg: color-mix(in oklab, var(--asian-bg), var(--sea-bg) calc(var(--sea) * 100%));
+  --surface: color-mix(in oklab, var(--asian-surface), var(--sea-surface) calc(var(--sea) * 100%));
+  --ink: color-mix(in oklab, var(--asian-ink), var(--sea-ink) calc(var(--sea) * 100%));
+  --muted: color-mix(in oklab, var(--asian-muted), var(--sea-muted) calc(var(--sea) * 100%));
+  --accent: color-mix(in oklab, var(--asian-accent), var(--sea-accent) calc(var(--sea) * 100%));
+  --accent-ink: color-mix(in oklab, var(--asian-accent-ink), var(--sea-accent-ink) calc(var(--sea) * 100%));
+  --field-1: color-mix(in oklab, var(--asian-field-1), var(--sea-field-1) calc(var(--sea) * 100%));
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  body {
-    transition: background-color 700ms;
+  :root {
+    transition: --sea 600ms ease;
+  }
+
+  :root.theme-no-anim {
+    transition: none;
   }
 }

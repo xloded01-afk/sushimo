@@ -6,6 +6,7 @@ test("setTheme меняет фон без перезагрузки", async () =>
   await withPage(async (page) => {
     const before = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--bg").trim());
     await page.evaluate(() => window.__sushimo.setTheme("sea"));
+    await page.waitForTimeout(700);
     const after = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--bg").trim());
     assert.notEqual(before, after);
     assert.equal(await page.locator("html").getAttribute("data-theme"), "sea");

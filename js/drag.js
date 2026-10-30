@@ -3,19 +3,12 @@
     return n < min ? min : n > max ? max : n;
   }
 
-  function initDrag(el, opts) {
-    const options = opts || {};
-    const onCross = options.onCross || (() => {});
-    const onReturn = options.onReturn || (() => {});
-
+  function initDrag(el) {
     let dragging = false;
     let startX = 0;
     let startLeft = 0;
-    let crossed = false;
-
-    function thresholdPx() {
-      return options.threshold != null ? options.threshold : 0.66 * window.innerWidth;
-    }
+    let homeCenter = 0;
+    let progress = 0;
 
     function apply(left) {
       el.style.transform = "translateX(" + (left - startLeft) + "px)";
@@ -23,37 +16,34 @@
 
     function evaluate(left) {
       const center = left + el.getBoundingClientRect().width / 2;
-      if (center >= thresholdPx()) {
-        if (!crossed) {
-          crossed = true;
-          onCross();
-        }
-      } else if (crossed) {
-        crossed = false;
-        onReturn();
-      }
+      const span = Math.max(1, window.innerWidth - homeCenter);
+      progress = clamp((center - homeCenter) / span, 0, 1);
+      window.__sushimo.setProgress(progress, { instant: true });
     }
 
     function finalize() {
       dragging = false;
+      const crossed = progress >= 0.5;
       if (!crossed) {
         if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
           apply(startLeft);
-          return;
+        } else {
+          el.style.transition = "transform 240ms ease";
+          apply(startLeft);
+          setTimeout(() => {
+            el.style.transition = "";
+          }, 260);
         }
-        el.style.transition = "transform 240ms ease";
-        apply(startLeft);
-        setTimeout(() => {
-          el.style.transition = "";
-        }, 260);
       }
+      window.__sushimo.setTheme(crossed ? "sea" : "asian");
     }
 
     el.addEventListener("pointerdown", (e) => {
       dragging = true;
-      crossed = false;
+      progress = 0;
       startX = e.clientX;
       startLeft = el.getBoundingClientRect().left;
+      homeCenter = el.offsetLeft + el.offsetWidth / 2;
       apply(startLeft);
       try {
         el.setPointerCapture(e.pointerId);
@@ -75,24 +65,13 @@
     el.addEventListener("keydown", (e) => {
       if (e.key === "ArrowRight") {
         e.preventDefault();
-        if (!crossed) {
-          crossed = true;
-          onCross();
-        }
+        window.__sushimo.setTheme("sea");
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
-        if (crossed) {
-          crossed = false;
-          onReturn();
-        }
+        window.__sushimo.setTheme("asian");
       } else if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        crossed = !crossed;
-        if (crossed) {
-          onCross();
-        } else {
-          onReturn();
-        }
+        window.__sushimo.setTheme(root.dataset.theme === "sea" ? "asian" : "sea");
       }
     });
   }
@@ -103,10 +82,7 @@
   function boot() {
     const el = document.getElementById("prawn");
     if (!el) return;
-    initDrag(el, {
-      onCross: () => window.__sushimo.setTheme("sea"),
-      onReturn: () => window.__sushimo.setTheme("asian"),
-    });
+    initDrag(el);
   }
 
   if (document.readyState === "loading") {

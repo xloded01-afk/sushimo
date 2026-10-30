@@ -96,7 +96,7 @@ ul {
 }
 
 .hero-lead {
-  grid-column: 1 / 5;
+  grid-column: 7 / -1;
   grid-row: 1;
   align-self: end;
 }
@@ -113,7 +113,7 @@ ul {
 }
 
 .prawn {
-  grid-column: 6 / -1;
+  grid-column: 1 / 6;
   grid-row: 1;
   width: 100%;
   aspect-ratio: 4 / 5;

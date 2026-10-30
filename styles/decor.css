@@ -4,7 +4,7 @@
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
-  opacity: 0;
+  opacity: var(--sea, 0);
 }
 
 #decor img {
@@ -36,14 +36,4 @@
   left: clamp(1rem, 6vw, 6rem);
   width: clamp(8rem, 16vw, 14rem);
   height: auto;
-}
-
-:root[data-theme="sea"] #decor {
-  opacity: 1;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  #decor {
-    transition: opacity 600ms ease 150ms;
-  }
 }
