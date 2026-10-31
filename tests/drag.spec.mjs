@@ -66,6 +66,44 @@ test("повторный захват с правой позиции не тел
   });
 });
 
+test("отпускание в середине оставляет креветку и микс на месте", async () => {
+  await withPage(async (page) => {
+    const box = await page.locator("#prawn").boundingBox();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(760, box.y + box.height / 2, { steps: 8 });
+    await page.mouse.up();
+    assert.equal(await page.locator("html").getAttribute("data-theme"), "sea");
+
+    const rest1 = await page.evaluate(() => ({
+      left: Math.round(document.getElementById("prawn").getBoundingClientRect().left),
+      sea: parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sea")),
+    }));
+    await page.waitForTimeout(450);
+    const settled1 = await page.evaluate(() => ({
+      left: Math.round(document.getElementById("prawn").getBoundingClientRect().left),
+      sea: parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sea")),
+    }));
+    assert.equal(settled1.left, rest1.left, "отпускание не должно двигать креветку");
+    assert.ok(settled1.sea > 0.4 && settled1.sea < 0.8, `микс остаётся на месте отпускания: ${settled1.sea}`);
+
+    const rest2 = await page.locator("#prawn").boundingBox();
+    await page.mouse.move(rest2.x + 20, rest2.y + 20);
+    await page.mouse.down();
+    await page.mouse.move(300, rest2.y + 20, { steps: 8 });
+    await page.mouse.up();
+    await page.waitForTimeout(450);
+    const settled2 = await page.evaluate(() => ({
+      left: Math.round(document.getElementById("prawn").getBoundingClientRect().left),
+      sea: parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sea")),
+      theme: document.documentElement.dataset.theme,
+    }));
+    assert.equal(settled2.theme, "asian");
+    assert.ok(settled2.sea > 0.02 && settled2.sea < 0.5, `промежуточный микс не дотягивается до нуля: ${settled2.sea}`);
+    assert.ok(settled2.left > 150 && settled2.left < 500, `креветка стоит там, где отпущена: ${settled2.left}`);
+  });
+});
+
 test("тач: pointerType touch переключает тему", async () => {
   await withPage(async (page) => {
     assert.equal(await page.locator("#prawn").evaluate((el) => getComputedStyle(el).touchAction), "none");

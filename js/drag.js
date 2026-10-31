@@ -3,6 +3,10 @@
     return n < min ? min : n > max ? max : n;
   }
 
+  function clamp01(n) {
+    return clamp(n, 0, 1);
+  }
+
   function initDrag(el) {
     let dragging = false;
     let startX = 0;
@@ -16,42 +20,55 @@
       el.style.transform = "translateX(" + (left - homeLeft) + "px)";
     }
 
+    function measure() {
+      homeLeft = el.offsetLeft;
+      const w = el.offsetWidth;
+      maxLeft = Math.max(0, window.innerWidth - w);
+      homeCenter = homeLeft + w / 2;
+    }
+
     function evaluate(left) {
       const center = left + el.offsetWidth / 2;
       const maxCenter = maxLeft + el.offsetWidth / 2;
       const span = Math.max(1, maxCenter - homeCenter);
-      progress = clamp((center - homeCenter) / span, 0, 1);
+      progress = clamp01((center - homeCenter) / span);
       window.__sushimo.setProgress(progress, { instant: true });
+    }
+
+    function leftForProgress(p) {
+      return homeLeft + p * (maxLeft - homeLeft);
+    }
+
+    function glideTo(target) {
+      const p = clamp01(target);
+      measure();
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        window.__sushimo.setProgress(p, { instant: true });
+        apply(leftForProgress(p));
+        return;
+      }
+      el.style.transition = "transform 600ms ease";
+      apply(leftForProgress(p));
+      window.__sushimo.setProgress(p);
+      setTimeout(() => {
+        el.style.transition = "";
+      }, 620);
     }
 
     function finalize() {
       dragging = false;
-      const crossed = progress >= 0.5;
-      if (!crossed) {
-        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-          apply(homeLeft);
-        } else {
-          el.style.transition = "transform 240ms ease";
-          apply(homeLeft);
-          setTimeout(() => {
-            el.style.transition = "";
-          }, 260);
-        }
-      }
-      window.__sushimo.setTheme(crossed ? "sea" : "asian");
+      document.documentElement.classList.remove("theme-no-anim");
     }
 
     el.addEventListener("pointerdown", (e) => {
       dragging = true;
       startX = e.clientX;
       el.style.transition = "";
-      homeLeft = el.offsetLeft;
-      const w = el.offsetWidth;
-      maxLeft = Math.max(0, window.innerWidth - w);
+      measure();
+      maxLeft = Math.max(0, window.innerWidth - el.offsetWidth);
       startLeft = el.getBoundingClientRect().left;
-      homeCenter = homeLeft + w / 2;
-      const maxCenter = maxLeft + w / 2;
-      progress = clamp((startLeft + w / 2 - homeCenter) / Math.max(1, maxCenter - homeCenter), 0, 1);
+      const maxCenter = maxLeft + el.offsetWidth / 2;
+      progress = clamp01((startLeft + el.offsetWidth / 2 - homeCenter) / Math.max(1, maxCenter - homeCenter));
       try {
         el.setPointerCapture(e.pointerId);
       } catch (_) {
@@ -82,15 +99,18 @@
         window.__sushimo.setTheme(now ? "asian" : "sea");
       }
     });
+
+    return { glideTo };
   }
 
   window.__sushimo = window.__sushimo || {};
-  window.__sushimo.initDrag = initDrag;
 
   function boot() {
     const el = document.getElementById("prawn");
     if (!el) return;
-    initDrag(el);
+    const api = initDrag(el);
+    window.__sushimo.initDrag = initDrag;
+    window.__sushimo.glideTo = api.glideTo;
   }
 
   if (document.readyState === "loading") {
