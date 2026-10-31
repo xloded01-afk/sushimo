@@ -5,9 +5,9 @@ import { withPage } from "./helpers.mjs";
 test("перетаскивание вправо включает море", async () => {
   await withPage(async (page) => {
     const box = await page.locator("#prawn").boundingBox();
-    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.move(box.x + box.width * 0.7, box.y + box.height / 2);
     await page.mouse.down();
-    await page.mouse.move(900, box.y + box.height / 2, { steps: 10 });
+    await page.mouse.move(850, box.y + box.height / 2, { steps: 10 });
     await page.mouse.up();
     assert.equal(await page.locator("html").getAttribute("data-theme"), "sea");
   });
@@ -26,7 +26,7 @@ test("стрелка вправо переключает тему с клави�
 test("флик за пределы экрана не ломает состояние", async () => {
   await withPage(async (page) => {
     const box = await page.locator("#prawn").boundingBox();
-    await page.mouse.move(box.x + 10, box.y + 10);
+    await page.mouse.move(box.x + box.width * 0.7, box.y + 10);
     await page.mouse.down();
     await page.mouse.move(5000, -5000, { steps: 5 });
     await page.mouse.up();
@@ -39,16 +39,16 @@ test("флик за пределы экрана не ломает состоян
 test("повторный захват с правой позиции не телепортирует и не выпускает за экран", async () => {
   await withPage(async (page) => {
     const box = await page.locator("#prawn").boundingBox();
-    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.move(box.x + box.width * 0.7, box.y + box.height / 2);
     await page.mouse.down();
     await page.mouse.move(1200, box.y + box.height / 2, { steps: 8 });
     await page.mouse.up();
     assert.equal(await page.locator("html").getAttribute("data-theme"), "sea");
 
     const rest = await page.locator("#prawn").boundingBox();
-    await page.mouse.move(rest.x + 20, rest.y + 20);
+    await page.mouse.move(rest.x + rest.width * 0.7, rest.y + 20);
     await page.mouse.down();
-    await page.mouse.move(rest.x + 14, rest.y + 20, { steps: 2 });
+    await page.mouse.move(rest.x + rest.width * 0.7 - 6, rest.y + 20, { steps: 2 });
     const afterGrab = await page.evaluate(() => ({
       left: Math.round(document.getElementById("prawn").getBoundingClientRect().left),
       vw: window.innerWidth,
@@ -69,9 +69,9 @@ test("повторный захват с правой позиции не тел
 test("отпускание в середине оставляет креветку и микс на месте", async () => {
   await withPage(async (page) => {
     const box = await page.locator("#prawn").boundingBox();
-    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.move(box.x + box.width * 0.7, box.y + box.height / 2);
     await page.mouse.down();
-    await page.mouse.move(760, box.y + box.height / 2, { steps: 8 });
+    await page.mouse.move(850, box.y + box.height / 2, { steps: 8 });
     await page.mouse.up();
     assert.equal(await page.locator("html").getAttribute("data-theme"), "sea");
 
@@ -88,9 +88,9 @@ test("отпускание в середине оставляет креветк
     assert.ok(settled1.sea > 0.4 && settled1.sea < 0.8, `микс остаётся на месте отпускания: ${settled1.sea}`);
 
     const rest2 = await page.locator("#prawn").boundingBox();
-    await page.mouse.move(rest2.x + 20, rest2.y + 20);
+    await page.mouse.move(rest2.x + rest2.width * 0.7, rest2.y + 20);
     await page.mouse.down();
-    await page.mouse.move(300, rest2.y + 20, { steps: 8 });
+    await page.mouse.move(603, rest2.y + 20, { steps: 8 });
     await page.mouse.up();
     await page.waitForTimeout(450);
     const settled2 = await page.evaluate(() => ({
@@ -104,13 +104,27 @@ test("отпускание в середине оставляет креветк
   });
 });
 
+test("захват за хвост не начинает перетаскивание", async () => {
+  await withPage(async (page) => {
+    const box = await page.locator("#prawn").boundingBox();
+    await page.mouse.move(box.x + 10, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(900, box.y + box.height / 2, { steps: 8 });
+    await page.mouse.up();
+    assert.equal(await page.locator("html").getAttribute("data-theme"), "asian");
+    const left = await page.locator("#prawn").evaluate((el) => Math.round(el.getBoundingClientRect().left));
+    assert.equal(left, Math.round(box.x), "креветка не должна сдвинуться при захвате за хвост");
+  });
+});
+
 test("тач: pointerType touch переключает тему", async () => {
   await withPage(async (page) => {
     assert.equal(await page.locator("#prawn").evaluate((el) => getComputedStyle(el).touchAction), "none");
     await page.locator("#prawn").evaluate((el) => {
       const r = el.getBoundingClientRect();
+      const grabX = r.left + r.width * 0.7;
       const o = (x, y) => ({ bubbles: true, pointerId: 1, pointerType: "touch", clientX: x, clientY: y });
-      el.dispatchEvent(new PointerEvent("pointerdown", o(r.x + 10, r.y + 10)));
+      el.dispatchEvent(new PointerEvent("pointerdown", o(grabX, r.y + 10)));
       el.dispatchEvent(new PointerEvent("pointermove", o(window.innerWidth - 20, r.y + 10)));
       el.dispatchEvent(new PointerEvent("pointerup", o(window.innerWidth - 20, r.y + 10)));
     });

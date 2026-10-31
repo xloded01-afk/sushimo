@@ -1,4 +1,9 @@
 (() => {
+  const HEAD_ZONE = 0.5;
+  const STRETCH_MAX = 0.5;
+  const STRETCH_RATE = 0.7;
+  const RELAX = 0.04;
+
   function clamp(n, min, max) {
     return n < min ? min : n > max ? max : n;
   }
@@ -16,15 +21,19 @@
     let maxLeft = 0;
     let progress = 0;
 
+    const stretchEl = el.querySelector(".prawn-stretch");
+    let stretch = 0;
+    let stretchTarget = 0;
+    let rafId = 0;
+
     function apply(left) {
       el.style.transform = "translateX(" + (left - homeLeft) + "px)";
     }
 
     function measure() {
       homeLeft = el.offsetLeft;
-      const w = el.offsetWidth;
-      maxLeft = Math.max(0, window.innerWidth - w);
-      homeCenter = homeLeft + w / 2;
+      maxLeft = Math.max(0, window.innerWidth - el.offsetWidth);
+      homeCenter = homeLeft + el.offsetWidth / 2;
     }
 
     function evaluate(left) {
@@ -37,6 +46,30 @@
 
     function leftForProgress(p) {
       return homeLeft + p * (maxLeft - homeLeft);
+    }
+
+    function tick() {
+      stretch += (stretchTarget - stretch) * RELAX;
+      if (!dragging && Math.abs(stretchTarget - stretch) < 0.003) {
+        stretch = stretchTarget;
+        if (stretchEl) stretchEl.style.transform = "";
+        rafId = 0;
+        return;
+      }
+      if (stretchEl) {
+        stretchEl.style.transform =
+          "scaleX(" + (1 + stretch).toFixed(4) + ") scaleY(" + (1 - stretch * 0.22).toFixed(4) + ")";
+      }
+      rafId = requestAnimationFrame(tick);
+    }
+
+    function wake() {
+      if (!rafId) rafId = requestAnimationFrame(tick);
+    }
+
+    function setStretchTarget(value) {
+      stretchTarget = clamp(value, 0, STRETCH_MAX);
+      wake();
     }
 
     function glideTo(target) {
@@ -57,15 +90,18 @@
 
     function finalize() {
       dragging = false;
+      stretchTarget = 0;
+      wake();
       document.documentElement.classList.remove("theme-no-anim");
     }
 
     el.addEventListener("pointerdown", (e) => {
+      const rect = el.getBoundingClientRect();
+      if ((e.clientX - rect.left) / rect.width < HEAD_ZONE) return;
       dragging = true;
       startX = e.clientX;
       el.style.transition = "";
       measure();
-      maxLeft = Math.max(0, window.innerWidth - el.offsetWidth);
       startLeft = el.getBoundingClientRect().left;
       const maxCenter = maxLeft + el.offsetWidth / 2;
       progress = clamp01((startLeft + el.offsetWidth / 2 - homeCenter) / Math.max(1, maxCenter - homeCenter));
@@ -77,10 +113,19 @@
     });
 
     el.addEventListener("pointermove", (e) => {
-      if (!dragging) return;
+      if (!dragging) {
+        const rect = el.getBoundingClientRect();
+        el.classList.toggle("is-head", (e.clientX - rect.left) / rect.width >= HEAD_ZONE);
+        return;
+      }
       const left = clamp(startLeft + (e.clientX - startX), 0, maxLeft);
       apply(left);
       evaluate(left);
+      setStretchTarget(((left - startLeft) / Math.max(1, el.offsetWidth)) * STRETCH_RATE);
+    });
+
+    el.addEventListener("pointerleave", () => {
+      if (!dragging) el.classList.remove("is-head");
     });
 
     el.addEventListener("pointerup", finalize);
