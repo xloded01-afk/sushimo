@@ -10,7 +10,7 @@ export async function withPage(fn) {
   const browser = await chromium.launch({ channel: "chrome" });
   try {
     const page = await browser.newPage();
-    await page.goto(pageURL);
+    await page.goto(pageURL, { waitUntil: "domcontentloaded" });
     await fn(page);
   } finally {
     await browser.close();

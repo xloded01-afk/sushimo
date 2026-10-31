@@ -12,26 +12,33 @@ test("подсказка исчезает после первого перекл
   });
 });
 
-test("креветка-объект загружается и подписана по-человечески", async () => {
+test("все три части креветки загружаются", async () => {
   await withPage(async (page) => {
-    const img = page.locator("#prawn img");
-    await img.waitFor();
-    assert.ok(await img.evaluate((el) => el.naturalWidth > 0), "графика креветки не загрузилась");
-    const alt = await img.getAttribute("alt");
-    assert.ok(alt && alt.length > 0 && alt.toLowerCase() !== "image", "alt обязан быть осмысленным");
+    const widths = await page.evaluate(() =>
+      Array.from(document.querySelectorAll(".prawn-tail, .prawn-body, .prawn-head")).map(
+        (el) => el.naturalWidth
+      )
+    );
+    assert.equal(widths.length, 3);
+    for (const w of widths) {
+      assert.ok(w > 0, "часть креветки не загрузилась");
+    }
+    assert.match(
+      await page.locator("#prawn").getAttribute("aria-label"),
+      /за голову/
+    );
   });
 });
 
 test("битая графика не ломает вёрстку", async () => {
   await withPage(async (page) => {
-    await page.locator("#prawn img").evaluate((el) => {
+    await page.locator(".prawn-head").evaluate((el) => {
       el.src = "assets/prawn-missing.svg";
     });
     await page.waitForTimeout(300);
     assert.ok(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)
     );
-    const alt = await page.locator("#prawn img").getAttribute("alt");
-    assert.ok(alt && alt.length > 0);
+    assert.equal(await page.locator(".prawn-tail").evaluate((el) => el.naturalWidth > 0), true);
   });
 });
