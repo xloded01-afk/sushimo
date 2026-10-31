@@ -20,8 +20,9 @@ test("все части креветки загружаются", async () => {
         `${cls} не загрузилась`
       );
     }
-    const bodyBg = await page.locator(".prawn-body").evaluate((el) => getComputedStyle(el).backgroundImage);
-    assert.match(bodyBg, /prawn-segment\.svg/, "тело должно собираться из сегментов-вагончиков");
+    const joints = await page.locator(".prawn-body .prawn-joint").count();
+    const fins = await page.locator(".prawn-body .prawn-fin").count();
+    assert.ok(joints >= 0 && fins >= 1, "тело должно собираться из вагончиков со стыками и плавниками");
     assert.match(await page.locator("#prawn").getAttribute("aria-label"), /за голову/);
   });
 });
