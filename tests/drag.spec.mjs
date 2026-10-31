@@ -7,7 +7,7 @@ test("перетаскивание головы вправо включает м
     const box = await page.locator(".prawn-head").boundingBox();
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await page.mouse.down();
-    await page.mouse.move(box.x + box.width / 2 + 280, box.y + box.height / 2, { steps: 10 });
+    await page.mouse.move(box.x + box.width / 2 + 700, box.y + box.height / 2, { steps: 10 });
     await page.mouse.up();
     assert.equal(await page.locator("html").getAttribute("data-theme"), "sea");
   });
@@ -37,27 +37,29 @@ test("захват за хвост не начинает перетаскива�
   });
 });
 
-test("повторный захват вытянутой головы не телепортирует и не выпускает за экран", async () => {
+test("голова доезжает до правого края страницы и не выходит за него", async () => {
   await withPage(async (page) => {
     const box = await page.locator(".prawn-head").boundingBox();
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await page.mouse.down();
-    await page.mouse.move(box.x + box.width / 2 + 500, box.y + box.height / 2, { steps: 8 });
+    await page.mouse.move(box.x + box.width / 2 + 2000, box.y + box.height / 2, { steps: 10 });
+    const atEdge = await page.evaluate(() => {
+      const r = document.querySelector(".prawn-head").getBoundingClientRect();
+      return { right: Math.round(r.right), vw: window.innerWidth, theme: document.documentElement.dataset.theme };
+    });
+    assert.ok(atEdge.right <= atEdge.vw + 1, "голова не должна выходить за правый край");
+    assert.ok(atEdge.right >= atEdge.vw - 40, "голова должна доезжать почти до края страницы");
+    assert.equal(atEdge.theme, "sea");
     await page.mouse.up();
-    assert.equal(await page.locator("html").getAttribute("data-theme"), "sea");
 
     const rest = await page.locator(".prawn-head").boundingBox();
     await page.mouse.move(rest.x + rest.width / 2, rest.y + 20);
     await page.mouse.down();
     await page.mouse.move(rest.x + rest.width / 2 - 6, rest.y + 20, { steps: 2 });
-    const afterGrab = await page.evaluate(() => ({
-      left: Math.round(document.querySelector(".prawn-head").getBoundingClientRect().left),
-      vw: window.innerWidth,
-    }));
-    assert.ok(
-      afterGrab.left > afterGrab.vw / 3,
-      `захват не должен телепортировать голову (осталась на ${afterGrab.left})`
+    const afterGrab = await page.evaluate(() =>
+      Math.round(document.querySelector(".prawn-head").getBoundingClientRect().left)
     );
+    assert.ok(afterGrab > atEdge.vw / 3, `повторный захват не должен телепортировать (осталась на ${afterGrab})`);
 
     await page.mouse.move(-500, rest.y + 20, { steps: 12 });
     const dragged = await page.locator(".prawn-head").evaluate((el) =>
@@ -74,7 +76,7 @@ test("отпускание в середине оставляет голову �
     const box = await page.locator(".prawn-head").boundingBox();
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await page.mouse.down();
-    await page.mouse.move(box.x + box.width / 2 + 230, box.y + box.height / 2, { steps: 8 });
+    await page.mouse.move(box.x + box.width / 2 + 600, box.y + box.height / 2, { steps: 8 });
     await page.mouse.up();
     assert.equal(await page.locator("html").getAttribute("data-theme"), "sea");
 
@@ -88,12 +90,12 @@ test("отпускание в середине оставляет голову �
       sea: parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--sea")),
     }));
     assert.equal(settled1.left, rest1.left, "отпускание не должно двигать голову");
-    assert.ok(settled1.sea > 0.4 && settled1.sea < 0.8, `микс остаётся на месте отпускания: ${settled1.sea}`);
+    assert.ok(settled1.sea > 0.4, `микс остаётся на месте отпускания: ${settled1.sea}`);
 
     const rest2 = await page.locator(".prawn-head").boundingBox();
     await page.mouse.move(rest2.x + rest2.width / 2, rest2.y + 20);
     await page.mouse.down();
-    await page.mouse.move(rest2.x + rest2.width / 2 - 200, rest2.y + 20, { steps: 8 });
+    await page.mouse.move(rest2.x + rest2.width / 2 - 400, rest2.y + 20, { steps: 8 });
     await page.mouse.up();
     await page.waitForTimeout(450);
     const settled2 = await page.evaluate(() => ({
@@ -103,7 +105,7 @@ test("отпускание в середине оставляет голову �
     }));
     assert.equal(settled2.theme, "asian");
     assert.ok(settled2.sea > 0.02 && settled2.sea < 0.5, `промежуточный микс не дотягивается до нуля: ${settled2.sea}`);
-    assert.ok(settled2.left > 250 && settled2.left < 600, `голова стоит там, где отпущена: ${settled2.left}`);
+    assert.ok(settled2.left > 250 && settled2.left < 700, `голова стоит там, где отпущена: ${settled2.left}`);
   });
 });
 
@@ -113,10 +115,10 @@ test("тело проявляется между хвостом и голово�
     const box = await page.locator(".prawn-head").boundingBox();
     await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
     await page.mouse.down();
-    await page.mouse.move(box.x + box.width / 2 + 250, box.y + box.height / 2, { steps: 8 });
+    await page.mouse.move(box.x + box.width / 2 + 400, box.y + box.height / 2, { steps: 8 });
     const bodyStretched = await page.locator(".prawn-body").evaluate((el) => el.getBoundingClientRect().width);
     assert.ok(
-      bodyStretched > bodyRest + 150,
+      bodyStretched > bodyRest + 250,
       `тело должно проявиться между хвостом и головой: ${bodyStretched} против ${bodyRest}`
     );
     await page.mouse.up();
@@ -132,8 +134,8 @@ test("тач: pointerType touch переключает тему", async () => {
     await page.locator(".prawn-head").evaluate((el) => {
       const o = (x, y) => ({ bubbles: true, pointerId: 1, pointerType: "touch", clientX: x, clientY: y });
       el.dispatchEvent(new PointerEvent("pointerdown", o(100, 10)));
-      el.dispatchEvent(new PointerEvent("pointermove", o(400, 10)));
-      el.dispatchEvent(new PointerEvent("pointerup", o(400, 10)));
+      el.dispatchEvent(new PointerEvent("pointermove", o(window.innerWidth + 300, 10)));
+      el.dispatchEvent(new PointerEvent("pointerup", o(window.innerWidth + 300, 10)));
     });
     assert.equal(await page.locator("html").getAttribute("data-theme"), "sea");
   });

@@ -4,9 +4,7 @@
   const BODY_F = 235 / 640; // тело — проявляется между хвостом и головой
   const HEAD_F = 265 / 640; // голова — подвижная часть
   const BODY_REST = 0.2; // доля тела, видная в покое (сложенная)
-  const STRETCH_MAX = 3.2; // предел растяжения тела
   const HEAD_REST_F = TAIL_F + BODY_REST * BODY_F;
-  const DELTA_MAX_F = (STRETCH_MAX - BODY_REST) * BODY_F;
 
   function clamp(n, min, max) {
     return n < min ? min : n > max ? max : n;
@@ -30,7 +28,11 @@
 
     function measure() {
       sceneW = scene.clientWidth;
-      deltaMax = DELTA_MAX_F * sceneW;
+      const sceneRect = scene.getBoundingClientRect();
+      const headRestLeft = sceneRect.left + HEAD_REST_F * sceneW;
+      const headW = HEAD_F * sceneW;
+      // голова может доехать до правого края страницы
+      deltaMax = Math.max(0, window.innerWidth - headRestLeft - headW);
     }
 
     function setDelta(d) {

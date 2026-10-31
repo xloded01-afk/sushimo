@@ -119,7 +119,6 @@ ul {
   aspect-ratio: 4 / 5;
   max-height: min(72svh, 42rem);
   padding: clamp(1.5rem, 3.5vw, 3rem);
-  background: var(--surface);
   touch-action: none;
   cursor: default;
 }
