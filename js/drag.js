@@ -13,7 +13,7 @@
     let progress = 0;
 
     function apply(left) {
-      el.style.transform = "translateX(" + (left - startLeft) + "px)";
+      el.style.transform = "translateX(" + (left - homeLeft) + "px)";
     }
 
     function evaluate(left) {
@@ -43,12 +43,15 @@
 
     el.addEventListener("pointerdown", (e) => {
       dragging = true;
-      progress = 0;
       startX = e.clientX;
-      startLeft = el.getBoundingClientRect().left;
+      el.style.transition = "";
       homeLeft = el.offsetLeft;
-      homeCenter = homeLeft + el.offsetWidth / 2;
-      maxLeft = Math.max(0, window.innerWidth - el.offsetWidth);
+      const w = el.offsetWidth;
+      maxLeft = Math.max(0, window.innerWidth - w);
+      startLeft = el.getBoundingClientRect().left;
+      homeCenter = homeLeft + w / 2;
+      const maxCenter = maxLeft + w / 2;
+      progress = clamp((startLeft + w / 2 - homeCenter) / Math.max(1, maxCenter - homeCenter), 0, 1);
       try {
         el.setPointerCapture(e.pointerId);
       } catch (_) {
@@ -75,7 +78,8 @@
         window.__sushimo.setTheme("asian");
       } else if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
-        window.__sushimo.setTheme(root.dataset.theme === "sea" ? "asian" : "sea");
+        const now = document.documentElement.dataset.theme === "sea";
+        window.__sushimo.setTheme(now ? "asian" : "sea");
       }
     });
   }
