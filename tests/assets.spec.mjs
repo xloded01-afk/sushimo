@@ -12,21 +12,17 @@ test("подсказка исчезает после первого перекл
   });
 });
 
-test("все три части креветки загружаются", async () => {
+test("все части креветки загружаются", async () => {
   await withPage(async (page) => {
-    const widths = await page.evaluate(() =>
-      Array.from(document.querySelectorAll(".prawn-tail, .prawn-body, .prawn-head")).map(
-        (el) => el.naturalWidth
-      )
-    );
-    assert.equal(widths.length, 3);
-    for (const w of widths) {
-      assert.ok(w > 0, "часть креветки не загрузилась");
+    for (const cls of [".prawn-tail", ".prawn-head"]) {
+      assert.ok(
+        await page.locator(cls).evaluate((el) => el.naturalWidth > 0),
+        `${cls} не загрузилась`
+      );
     }
-    assert.match(
-      await page.locator("#prawn").getAttribute("aria-label"),
-      /за голову/
-    );
+    const bodyBg = await page.locator(".prawn-body").evaluate((el) => getComputedStyle(el).backgroundImage);
+    assert.match(bodyBg, /prawn-segment\.svg/, "тело должно собираться из сегментов-вагончиков");
+    assert.match(await page.locator("#prawn").getAttribute("aria-label"), /за голову/);
   });
 });
 

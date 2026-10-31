@@ -140,17 +140,21 @@ ul {
 
 .prawn-tail {
   left: 0;
-  width: 21.875%;
+  width: 23.4375%;
 }
 
 .prawn-body {
-  left: 21.875%;
-  width: 7.34375%;
+  position: absolute;
+  top: 0;
+  left: 23.4375%;
+  width: 9.375%;
+  height: 100%;
+  background: url("../assets/prawn-segment.svg?v=5") repeat-x left top / auto 100%;
 }
 
 .prawn-head {
-  left: 29.21875%;
-  width: 41.40625%;
+  left: 32.8125%;
+  width: 43.75%;
   cursor: grab;
   touch-action: none;
 }

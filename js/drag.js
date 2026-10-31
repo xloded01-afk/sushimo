@@ -1,10 +1,9 @@
 (() => {
-  // Доли ширины сцены (внутренней области карточки); рисунок занимает 640 условных единиц
-  const TAIL_F = 140 / 640; // хвост — неподвижная часть
-  const BODY_F = 235 / 640; // тело — проявляется между хвостом и головой
-  const HEAD_F = 265 / 640; // голова — подвижная часть
-  const BODY_REST = 0.2; // доля тела, видная в покое (сложенная)
-  const HEAD_REST_F = TAIL_F + BODY_REST * BODY_F;
+  // Доли ширины сцены; вагончик-сегмент — 60 единиц при высоте сцены 800
+  const TAIL_F = 0.234375; // хвост — неподвижная часть (150/800 × 1.25)
+  const TILE_F = 0.09375; // один вагончик-сегмент (60/800 × 1.25)
+  const HEAD_F = 0.4375; // голова — подвижная часть (280/800 × 1.25)
+  const HEAD_REST_F = TAIL_F + TILE_F;
 
   function clamp(n, min, max) {
     return n < min ? min : n > max ? max : n;
@@ -38,7 +37,7 @@
     function setDelta(d) {
       delta = clamp(d, 0, deltaMax);
       headEl.style.transform = "translateX(" + delta + "px)";
-      bodyEl.style.width = (BODY_REST * BODY_F * sceneW + delta) + "px";
+      bodyEl.style.width = (TILE_F * sceneW + delta) + "px";
     }
 
     function evaluate() {
