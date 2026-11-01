@@ -9,7 +9,10 @@ test("декор виден только в морской теме и не ло
     assert.equal(await decor.evaluate((el) => getComputedStyle(el).pointerEvents), "none");
     assert.equal(await decor.evaluate((el) => getComputedStyle(el).opacity), "0");
     await page.evaluate(() => window.__sushimo.setTheme("sea"));
-    await page.waitForTimeout(900);
+    await page.waitForFunction(
+      () => getComputedStyle(document.getElementById("decor")).opacity === "1",
+      { timeoutMs: 3000 }
+    );
     assert.notEqual(await decor.evaluate((el) => getComputedStyle(el).opacity), "0");
   });
 });

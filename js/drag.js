@@ -1,9 +1,8 @@
 (() => {
-  // Геометрия креветки: доли ширины сцены и доли её высоты для силуэта тела
-  const TAIL_F = 0.234375; // хвост — неподвижная часть (150/800 × 1.25)
-  const HEAD_F = 0.4375; // голова — подвижная часть (280/800 × 1.25)
-  const PITCH_F = 0.105; // ширина одного вагончика
-  const HEAD_REST_F = TAIL_F + PITCH_F;
+  // Геометрия креветки: доли ВЫСОТЫ сцены (полотно 800 единиц)
+  const TAIL_HF = 190 / 800; // хвост — неподвижная часть
+  const PITCH_HF = 72 / 800; // вагонный шаг
+  const HEAD_HF = 360 / 800; // голова — подвижная часть
 
   // Силуэт тела: верх и низ брюшка в долях высоты сцены
   const TOP_TAIL = 0.42;
@@ -25,32 +24,41 @@
     const scene = el.querySelector(".prawn-scene");
     const headEl = el.querySelector(".prawn-head");
     const bodyEl = el.querySelector(".prawn-body");
+    const tailEl = el.querySelector(".prawn-tail");
 
     let dragging = false;
     let startX = 0;
     let grabDelta = 0;
     let delta = 0;
+    let renderedDelta = 0;
     let deltaMax = 0;
-    let sceneW = 0;
+    let tailW = 0;
+    let pitchPx = 0;
+    let followRaf = 0;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     function measure() {
-      sceneW = scene.clientWidth;
+      const H = scene.clientHeight;
+      tailW = TAIL_HF * H;
+      pitchPx = PITCH_HF * H;
+      const headW = HEAD_HF * H;
       const sceneRect = scene.getBoundingClientRect();
-      const headRestLeft = sceneRect.left + HEAD_REST_F * sceneW;
-      const headW = HEAD_F * sceneW;
+      const headRestLeft = sceneRect.left + tailW + pitchPx;
       // голова может доехать до правого края страницы
       deltaMax = Math.max(0, window.innerWidth - headRestLeft - headW);
+      tailEl.style.width = tailW + "px";
+      headEl.style.left = tailW + pitchPx + "px";
+      headEl.style.width = headW + "px";
+      bodyEl.style.left = tailW + "px";
     }
 
     function renderWagons() {
-      const bodyW = PITCH_F * sceneW + delta;
-      const pitch = PITCH_F * sceneW;
-      const n = Math.max(1, Math.round(bodyW / pitch));
+      const bodyW = pitchPx + renderedDelta;
+      const n = Math.max(1, Math.round(bodyW / pitchPx));
       const w = bodyW / n;
       const H = scene.clientHeight;
-      const ext = deltaMax > 0 ? clamp01(delta / deltaMax) : 0;
+      const ext = deltaMax > 0 ? clamp01(renderedDelta / deltaMax) : 0;
 
-      bodyEl.style.left = TAIL_F * sceneW + "px";
       bodyEl.style.width = bodyW + "px";
 
       // силуэт: в покое тело просто сужается к хвосту, при вытягивании спина выгибается дугой
@@ -115,10 +123,33 @@
       }
     }
 
+    // тело догоняет голову с мягким запаздыванием: вытягивание читается плавно
+    function followTick() {
+      renderedDelta += (delta - renderedDelta) * 0.22;
+      if (Math.abs(delta - renderedDelta) < 0.5) {
+        renderedDelta = delta;
+        renderWagons();
+        followRaf = 0;
+        return;
+      }
+      renderWagons();
+      followRaf = requestAnimationFrame(followTick);
+    }
+
+    function wakeFollow() {
+      if (reduceMotion.matches) {
+        renderedDelta = delta;
+        renderWagons();
+        return;
+      }
+      if (!followRaf) followRaf = requestAnimationFrame(followTick);
+    }
+
     function setDelta(d) {
       delta = clamp(d, 0, deltaMax);
       headEl.style.transform = "translateX(" + delta + "px)";
-      renderWagons();
+      if (reduceMotion.matches) renderedDelta = delta;
+      wakeFollow();
     }
 
     function evaluate() {

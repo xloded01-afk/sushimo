@@ -122,9 +122,21 @@ test("тело проявляется между хвостом и голово�
       `тело должно проявиться между хвостом и головой: ${bodyStretched} против ${bodyRest}`
     );
     await page.mouse.up();
-    await page.waitForTimeout(450);
+    // ждём остановки пружины: ширина перестаёт меняться между кадрами
+    await page.waitForFunction(
+      () => {
+        const w = document.querySelector(".prawn-body").getBoundingClientRect().width;
+        if (window.__bodyW !== undefined && Math.abs(w - window.__bodyW) < 0.5) return true;
+        window.__bodyW = w;
+        return false;
+      },
+      { timeoutMs: 3000 }
+    );
     const bodyAfter = await page.locator(".prawn-body").evaluate((el) => el.getBoundingClientRect().width);
-    assert.equal(Math.round(bodyAfter), Math.round(bodyStretched), "после отпускания тело остаётся проявленным");
+    assert.ok(
+      Math.abs(bodyAfter - (bodyRest + 400)) < 30,
+      `после отпускания тело остаётся проявленным: ${bodyAfter} против ожидаемых ${bodyRest + 400}`
+    );
   });
 });
 
