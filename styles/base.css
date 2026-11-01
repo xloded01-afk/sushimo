@@ -107,6 +107,46 @@ ul {
   font-size: var(--step-body);
 }
 
+.drag-hint {
+  position: absolute;
+  left: 50%;
+  top: 13%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: var(--step-small);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.drag-hint-arrow {
+  width: clamp(30px, 3.2vw, 46px);
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .drag-hint-arrow {
+    animation: hint-slide 1.9s ease-in-out infinite;
+  }
+}
+
+@keyframes hint-slide {
+  0%, 100% {
+    transform: translateX(0);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: translateX(10px);
+    opacity: 1;
+  }
+}
+
 .theme-hint {
   color: var(--muted);
   font-size: var(--step-small);

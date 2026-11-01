@@ -35,10 +35,9 @@
 
     <main>
       <section id="hero" class="hero" aria-labelledby="site-title">
-        <div class="hero-lead">
-          <p class="hero-tagline">морепродукты · Москва</p>
-          <p id="theme-hint" class="theme-hint">потяни вправо</p>
-        </div>
+          <div class="hero-lead">
+            <p class="hero-tagline">морепродукты · Москва</p>
+          </div>
         <div
           id="prawn"
           class="prawn"
@@ -47,6 +46,12 @@
           aria-label="Потяните креветку за голову вправо для перехода в морскую тему"
         >
           <div class="prawn-scene">
+            <div id="theme-hint" class="drag-hint">
+              <svg class="drag-hint-arrow" viewBox="0 0 44 16" aria-hidden="true">
+                <path d="M0 8 H 36 M 30 2 L 38 8 L 30 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>потяни вправо</span>
+            </div>
             <img class="prawn-tail" src="assets/prawn-tail.svg?v=6" alt="" draggable="false" />
             <div class="prawn-body">
               <svg class="prawn-shape" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
