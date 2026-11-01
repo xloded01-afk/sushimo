@@ -6,9 +6,22 @@ test("на трёх ширинах нет горизонтального скр�
   for (const width of [360, 768, 1440]) {
     await withPage(async (page) => {
       await page.setViewportSize({ width, height: 800 });
+      const offenders = await page.evaluate(() =>
+        Array.from(document.querySelectorAll("*"))
+          .filter((el) => el.getBoundingClientRect().right > window.innerWidth + 1)
+          .slice(0, 6)
+          .map(
+            (el) =>
+              el.tagName +
+              "." +
+              String(el.className.baseVal ?? el.className).split(" ")[0] +
+              "→" +
+              Math.round(el.getBoundingClientRect().right)
+          )
+      );
       assert.ok(
         await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1),
-        `горизонтальный скролл на ширине ${width}`
+        `горизонтальный скролл на ширине ${width}: ${JSON.stringify(offenders)}`
       );
       await page.locator("#prawn").focus();
       const outline = await page.locator("#prawn").evaluate((el) => getComputedStyle(el).outlineStyle);
