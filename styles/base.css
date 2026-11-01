@@ -124,6 +124,12 @@ ul {
   z-index: 2;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .drag-hint {
+    transition: opacity 1200ms ease;
+  }
+}
+
 .drag-hint-arrow {
   width: clamp(30px, 3.2vw, 46px);
   color: var(--accent);
