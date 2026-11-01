@@ -58,9 +58,5 @@
 
   syncPrawn();
 
-  try {
-    if (sessionStorage.getItem("sushimo:hint-seen") === "1") hideHint();
-  } catch (_) {}
-
   window.__sushimo = Object.assign(window.__sushimo || {}, { setTheme, setProgress });
 })();
