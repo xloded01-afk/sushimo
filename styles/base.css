@@ -279,6 +279,18 @@ ul {
   text-underline-offset: 0.15em;
 }
 
+@media (max-width: 768px) {
+  .prawn {
+    grid-column: 1 / -1;
+  }
+
+  .hero-lead {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    align-self: start;
+  }
+}
+
 @media (max-width: 480px) {
   :root {
     --section-space: 2.75rem;

@@ -6,8 +6,18 @@ test("на трёх ширинах нет горизонтального скр�
   for (const width of [360, 768, 1440]) {
     await withPage(async (page) => {
       await page.setViewportSize({ width, height: 800 });
-      const offenders = await page.evaluate(() =>
-        Array.from(document.querySelectorAll("*"))
+      // даём обработчику resize пересчитать геометрию креветки
+      await page
+        .waitForFunction(
+          () => {
+            const r = document.querySelector(".prawn-head").getBoundingClientRect();
+            return r.right <= window.innerWidth + 1;
+          },
+          { timeoutMs: 2000 }
+        )
+        .catch(() => {});
+      const check = await page.evaluate(() => {
+        const offenders = Array.from(document.querySelectorAll("*"))
           .filter((el) => el.getBoundingClientRect().right > window.innerWidth + 1)
           .slice(0, 6)
           .map(
@@ -17,11 +27,15 @@ test("на трёх ширинах нет горизонтального скр�
               String(el.className.baseVal ?? el.className).split(" ")[0] +
               "→" +
               Math.round(el.getBoundingClientRect().right)
-          )
-      );
+          );
+        return {
+          ok: document.documentElement.scrollWidth <= window.innerWidth + 1,
+          offenders,
+        };
+      });
       assert.ok(
-        await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1),
-        `горизонтальный скролл на ширине ${width}: ${JSON.stringify(offenders)}`
+        check.ok,
+        `горизонтальный скролл на ширине ${width}: ${JSON.stringify(check.offenders)}`
       );
       await page.locator("#prawn").focus();
       const outline = await page.locator("#prawn").evaluate((el) => getComputedStyle(el).outlineStyle);
